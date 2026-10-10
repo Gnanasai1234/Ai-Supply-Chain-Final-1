@@ -258,6 +258,9 @@ def analyze_user_feedback(feedback_records: list[dict[str, Any]]) -> dict[str, A
                     "created_at": item.get("created_at"),
                     "predicted_recovery_days": round(pred_f, 1),
                     "actual_recovery_days": round(act_f, 1),
+                    "predicted": round(pred_f, 1),
+                    "actual": round(act_f, 1),
+                    "label": f"#{item.get('analysis_id')} {item.get('disruption_type') or ''}"[:14],
                     "error_days": err,
                     "abs_error_days": abs_err,
                     "percentage_error": pct_err,
@@ -310,6 +313,7 @@ def analyze_user_feedback(feedback_records: list[dict[str, Any]]) -> dict[str, A
         "status": retrain_status,
         "retraining_justified": retrain_justified,
         "decision": decision_text,
+        "reason": decision_text,
         "sample_count": paired_count,
         "min_samples_required": 5,
         "baseline_test_mae": baseline_test_mae,
@@ -339,6 +343,17 @@ def analyze_user_feedback(feedback_records: list[dict[str, Any]]) -> dict[str, A
     # Sort error trends chronologically (oldest to newest for trend line)
     error_trends = sorted(paired_cases, key=lambda x: str(x.get("created_at") or ""))
 
+    pred_metrics = {
+        "paired_count": paired_count,
+        "mae": mae,
+        "mean_error": mean_err,
+        "median_error": median_err,
+        "rmse": rmse,
+        "baseline_test_mae": baseline_test_mae,
+        "mae_drift_pct": drift_pct,
+        "drift_detected": retrain_justified,
+    }
+
     return {
         "stats": {
             "total_count": total_count,
@@ -352,15 +367,8 @@ def analyze_user_feedback(feedback_records: list[dict[str, Any]]) -> dict[str, A
         "low_rated_analyses": low_rated_list[:15],
         "recurring_issues": recurring_issues,
         "improvement_insights": improvement_insights,
-        "prediction_error_metrics": {
-            "paired_count": paired_count,
-            "mae": mae,
-            "mean_error": mean_err,
-            "median_error": median_err,
-            "rmse": rmse,
-            "baseline_test_mae": baseline_test_mae,
-            "mae_drift_pct": drift_pct,
-        },
+        "prediction_error_metrics": pred_metrics,
+        "error_analytics": pred_metrics,
         "retraining_evaluation": retraining_eval,
         "error_trends": error_trends,
     }

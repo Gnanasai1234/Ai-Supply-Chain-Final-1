@@ -1288,12 +1288,18 @@ function Analytics() {
 function FeedbackPage({latest,onToast}) {
   const [sent,setSent]=useState(false);const [busy,setBusy]=useState(false);const [error,setError]=useState('');const [comment,setComment]=useState('');const [actualRecovery,setActualRecovery]=useState('')
   const [analytics,setAnalytics]=useState(null);const [loadingAnalytics,setLoadingAnalytics]=useState(true);const [analyticsError,setAnalyticsError]=useState('')
+  const [recentAnalyses,setRecentAnalyses]=useState([])
+  const [selectedAnalysisId,setSelectedAnalysisId]=useState(null)
 
   const loadFeedbackAnalytics=async()=>{
     setLoadingAnalytics(true);setAnalyticsError('')
     try{
-      const res=await api.get('/feedback')
-      setAnalytics(res.data)
+      const [res, histRes] = await Promise.allSettled([api.get('/feedback'), api.get('/history?page_size=15')])
+      if(res.status === 'fulfilled') setAnalytics(res.value.data)
+      else setAnalyticsError(friendlyError(res.reason))
+      if(histRes.status === 'fulfilled' && Array.isArray(histRes.value.data?.results)) {
+        setRecentAnalyses(histRes.value.data.results)
+      }
     }catch(err){
       setAnalyticsError(friendlyError(err))
     }finally{
@@ -1303,11 +1309,14 @@ function FeedbackPage({latest,onToast}) {
 
   useEffect(()=>{loadFeedbackAnalytics()},[])
 
+  const activeAnalysis = latest || recentAnalyses.find(a => (a.analysis_id || a.id) === selectedAnalysisId) || recentAnalyses[0] || null
+  const activeAnalysisId = selectedAnalysisId || latest?.analysis_id || activeAnalysis?.analysis_id || activeAnalysis?.id
+
   const submit=async useful=>{
-    setError('');if(!latest?.analysis_id){setError('Run a disruption analysis first; feedback is attached to a saved analysis.');return}
+    setError('');if(!activeAnalysisId){setError('Run a disruption analysis first; feedback is attached to a saved analysis.');return}
     setBusy(true)
     try{
-      await api.post('/feedback',{analysis_id:latest.analysis_id,useful,comment:comment||null,actual_recovery_days:actualRecovery===''?null:Number(actualRecovery)})
+      await api.post('/feedback',{analysis_id:activeAnalysisId,useful,comment:comment||null,actual_recovery_days:actualRecovery===''?null:Number(actualRecovery)})
       setSent(true)
       onToast('Feedback submitted')
       loadFeedbackAnalytics()
@@ -1318,11 +1327,20 @@ function FeedbackPage({latest,onToast}) {
     }
   }
 
+  const resetForm = () => {
+    setSent(false)
+    setComment('')
+    setActualRecovery('')
+    setError('')
+  }
+
   const stats = analytics?.stats || { total_count: 0, positive_count: 0, negative_count: 0, helpfulness_percentage: 0, average_rating: 0 }
   const recurring = analytics?.recurring_issues || []
   const insights = analytics?.improvement_insights || []
   const lowRated = analytics?.low_rated_analyses || []
   const historyRows = analytics?.recent_feedback || []
+  const errorMetrics = analytics?.error_analytics || analytics?.prediction_error_metrics || {}
+  const retrainEval = analytics?.retraining_evaluation || {}
 
   return (
     <>
@@ -1334,14 +1352,28 @@ function FeedbackPage({latest,onToast}) {
 
       <Panel
         title="Was the recommendation useful?"
-        subtitle={latest ? `For analysis #${latest.analysis_id} (${latest.disruption_type || 'Disruption'}, ${latest.industry || 'Industry'})` : 'Feedback requires a saved analysis. Run an analysis first or inspect previous feedback analytics below.'}
+        subtitle={activeAnalysis ? `For analysis #${activeAnalysisId} (${activeAnalysis.disruption_type || 'Disruption'}, ${activeAnalysis.industry || 'Industry'})` : 'Feedback requires a saved analysis. Run an analysis first or inspect previous feedback analytics below.'}
+        action={recentAnalyses.length > 1 && (
+          <select 
+            className="filter-select"
+            value={activeAnalysisId || ''}
+            onChange={e => { setSelectedAnalysisId(Number(e.target.value)); setSent(false); }}
+            style={{ fontSize: '11px', padding: '4px 8px' }}
+          >
+            {recentAnalyses.map(a => (
+              <option key={a.analysis_id || a.id} value={a.analysis_id || a.id}>
+                Analysis #{a.analysis_id || a.id} ({a.disruption_type || 'Disruption'}, {a.industry || 'Industry'})
+              </option>
+            ))}
+          </select>
+        )}
       >
         <label className="feedback-label">
           Comments
           <textarea
             className="feedback-text"
             value={comment}
-            onChange={e => setComment(e.target.value)}
+            onChange={e => { setComment(e.target.value); if(sent) setSent(false); }}
             placeholder="Optional notes about recommendation practicality, evidence quality, or recovery outcome..."
           />
         </label>
@@ -1352,18 +1384,25 @@ function FeedbackPage({latest,onToast}) {
             min="0"
             max="5000"
             value={actualRecovery}
-            onChange={e => setActualRecovery(e.target.value)}
+            onChange={e => { setActualRecovery(e.target.value); if(sent) setSent(false); }}
             placeholder="e.g. 45"
           />
         </label>
         <div className="feedback-actions">
-          <button type="button" className="outline-btn" disabled={sent || busy} onClick={() => submit(true)}>
+          <button type="button" className="outline-btn" disabled={busy} onClick={() => submit(true)}>
             {busy ? <LoaderCircle className="spin" size={16} /> : <ThumbsUp size={16} />} Yes, useful
           </button>
-          <button type="button" className="outline-btn" disabled={sent || busy} onClick={() => submit(false)}>
-            <ThumbsDown size={16} /> Not useful
+          <button type="button" className="outline-btn" disabled={busy} onClick={() => submit(false)}>
+            {busy ? <LoaderCircle className="spin" size={16} /> : <ThumbsDown size={16} />} Not useful
           </button>
-          {sent && <span className="success-inline"><Check size={15} /> Feedback saved. Continuous improvement metrics updated.</span>}
+          {sent && (
+            <>
+              <span className="success-inline"><Check size={15} /> Feedback saved. Continuous improvement metrics updated.</span>
+              <button type="button" className="text-btn" onClick={resetForm} style={{ fontSize: '11px', marginLeft: '8px' }}>
+                Clear / New Feedback
+              </button>
+            </>
+          )}
         </div>
         {error && <ErrorState title="Feedback was not saved" description={error} />}
       </Panel>
@@ -1408,7 +1447,7 @@ function FeedbackPage({latest,onToast}) {
             />
           </div>
 
-          {analytics?.retraining_evaluation && (
+          {retrainEval?.status && (
             <Panel
               title="Feedback-Driven Model Monitoring & Retraining Evaluation"
               subtitle="Validates whether real-world prediction drift justifies model retraining"
@@ -1418,8 +1457,8 @@ function FeedbackPage({latest,onToast}) {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <b style={{ fontSize: '13px' }}>Model Governance Status:</b>
-                    <span className={`eval-status-badge ${analytics.retraining_evaluation.status === 'STABLE' ? 'good' : analytics.retraining_evaluation.status === 'RETRAINING_JUSTIFIED' ? 'needs-improvement' : 'eval-status-badge'}`}>
-                      {analytics.retraining_evaluation.status}
+                    <span className={`eval-status-badge ${retrainEval.status === 'STABLE' ? 'good' : retrainEval.status === 'RETRAINING_JUSTIFIED' ? 'needs-improvement' : 'eval-status-badge'}`}>
+                      {retrainEval.status}
                     </span>
                   </div>
                   <span className="retraining-guard-badge">
@@ -1428,7 +1467,7 @@ function FeedbackPage({latest,onToast}) {
                 </div>
 
                 <p style={{ margin: '10px 0 6px', fontSize: '12px', color: 'var(--ink)' }}>
-                  {analytics.retraining_evaluation.reason}
+                  {retrainEval.reason || retrainEval.decision}
                 </p>
 
                 <div style={{ fontSize: '10px', color: 'var(--text-muted)', borderTop: '1px solid var(--line-soft)', paddingTop: '8px', marginTop: '8px' }}>
@@ -1436,36 +1475,36 @@ function FeedbackPage({latest,onToast}) {
                 </div>
               </div>
 
-              {analytics?.error_analytics?.paired_count > 0 && (
+              {errorMetrics?.paired_count > 0 && (
                 <div className="stats-grid" style={{ marginTop: '14px' }}>
                   <Stat
                     label="Paired Feedback Samples"
-                    value={analytics.error_analytics.paired_count}
+                    value={errorMetrics.paired_count}
                     note="Verified actual recovery outcomes"
                     tone="blue"
                   />
                   <Stat
                     label="Feedback MAE"
-                    value={`${analytics.error_analytics.mae} d`}
-                    note={`Baseline test split: ${analytics.error_analytics.baseline_test_mae} d`}
-                    tone={analytics.error_analytics.drift_detected ? 'red' : 'green'}
+                    value={`${errorMetrics.mae} d`}
+                    note={`Baseline test split: ${errorMetrics.baseline_test_mae} d`}
+                    tone={errorMetrics.drift_detected ? 'red' : 'green'}
                   />
                   <Stat
                     label="Prediction Error RMSE"
-                    value={`${analytics.error_analytics.rmse} d`}
+                    value={`${errorMetrics.rmse} d`}
                     note="Root mean squared error"
                     tone="amber"
                   />
                   <Stat
                     label="Mean Prediction Bias"
-                    value={`${analytics.error_analytics.mean_error > 0 ? '+' : ''}${analytics.error_analytics.mean_error} d`}
+                    value={`${errorMetrics.mean_error > 0 ? '+' : ''}${errorMetrics.mean_error} d`}
                     note="Systematic over/under estimation"
                   />
                   <Stat
                     label="MAE Drift vs Baseline"
-                    value={`${analytics.error_analytics.mae_drift_pct > 0 ? '+' : ''}${analytics.error_analytics.mae_drift_pct}%`}
-                    note={analytics.error_analytics.drift_detected ? 'Drift threshold exceeded (>25%)' : 'Within normal operational variance'}
-                    tone={analytics.error_analytics.drift_detected ? 'red' : 'green'}
+                    value={`${errorMetrics.mae_drift_pct > 0 ? '+' : ''}${errorMetrics.mae_drift_pct}%`}
+                    note={errorMetrics.drift_detected ? 'Drift threshold exceeded (>25%)' : 'Within normal operational variance'}
+                    tone={errorMetrics.drift_detected ? 'red' : 'green'}
                   />
                 </div>
               )}
@@ -1480,7 +1519,15 @@ function FeedbackPage({latest,onToast}) {
             >
               <div className="dashboard-chart" style={{ height: 260 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analytics.error_trends} margin={{ top: 12, right: 16, left: -10, bottom: 20 }}>
+                  <BarChart 
+                    data={analytics.error_trends.map(t => ({
+                      ...t,
+                      predicted: t.predicted ?? t.predicted_recovery_days,
+                      actual: t.actual ?? t.actual_recovery_days,
+                      label: t.label || `#${t.analysis_id || ''}`
+                    }))} 
+                    margin={{ top: 12, right: 16, left: -10, bottom: 20 }}
+                  >
                     <CartesianGrid stroke="var(--line-soft)" vertical={false} />
                     <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'var(--text-muted)' }} />
                     <YAxis tick={{ fontSize: 10, fill: 'var(--text-muted)' }} unit=" d" />
