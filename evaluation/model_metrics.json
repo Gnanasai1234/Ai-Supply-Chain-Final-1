@@ -1,0 +1,89 @@
+{
+  "dataset_rows": 100000,
+  "ingestion_validation": {
+    "source_rows": 100000,
+    "valid_rows": 100000,
+    "dropped_invalid_rows": 0,
+    "exact_duplicate_rows_removed": 0,
+    "duplicate_disruption_ids_removed": 0
+  },
+  "train_rows": 70000,
+  "validation_rows": 15000,
+  "test_rows": 15000,
+  "features_used": [
+    "disruption_type",
+    "industry",
+    "supplier_tier",
+    "supplier_region",
+    "supplier_size",
+    "has_backup_supplier",
+    "disruption_severity"
+  ],
+  "features_excluded_for_leakage": {
+    "production_impact_pct": "prediction target",
+    "revenue_loss_usd": "prediction target",
+    "full_recovery_days": "prediction target",
+    "permanent_supplier_change": "prediction target",
+    "response_type": "strategy is selected after initial event assessment and would leak response decisions",
+    "response_time_days": "response outcome is not known at initial prediction time",
+    "partial_recovery_days": "later recovery outcome; would leak future information into full recovery prediction"
+  },
+  "models": {
+    "production_impact": {
+      "file": "production_impact_model.pkl",
+      "target": "production_impact_pct",
+      "kind": "regression",
+      "selected_algorithm": "random_forest",
+      "validation_metric": "mae",
+      "validation_score": 8.047852097729514,
+      "test_metrics": {
+        "mae": 7.993951128884401,
+        "rmse": 9.92277721342907,
+        "r2": 0.6837065148868632
+      }
+    },
+    "financial_loss": {
+      "file": "financial_loss_model.pkl",
+      "target": "revenue_loss_usd",
+      "kind": "regression",
+      "selected_algorithm": "random_forest",
+      "validation_metric": "mae",
+      "validation_score": 1740868.9777209738,
+      "test_metrics": {
+        "mae": 1774594.6071827791,
+        "rmse": 4419907.709734167,
+        "r2": 0.3739650062059735
+      }
+    },
+    "recovery_time": {
+      "file": "recovery_time_model.pkl",
+      "target": "full_recovery_days",
+      "kind": "regression",
+      "selected_algorithm": "random_forest",
+      "validation_metric": "mae",
+      "validation_score": 32.24565593823222,
+      "test_metrics": {
+        "mae": 31.74413857534447,
+        "rmse": 45.210804574561635,
+        "r2": 0.3689244046831577
+      }
+    },
+    "permanent_supplier_change": {
+      "file": "permanent_supplier_change_model.pkl",
+      "target": "permanent_supplier_change",
+      "kind": "classification",
+      "selected_algorithm": "random_forest",
+      "validation_metric": "f1",
+      "validation_score": 0.4184109132562741,
+      "test_metrics": {
+        "accuracy": 0.6397333333333334,
+        "precision": 0.3317448680351906,
+        "recall": 0.5072869955156951,
+        "f1": 0.40115248226950356,
+        "roc_auc": 0.6350030458911654
+      }
+    }
+  },
+  "trained_at": "20261005T202832Z",
+  "mysql_model_version_sync": "unavailable; model files and measured metrics were saved locally"
+}

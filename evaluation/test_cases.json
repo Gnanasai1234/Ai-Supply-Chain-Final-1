@@ -1,0 +1,217 @@
+[
+  {
+    "test_id": "TC-01",
+    "name": "Similar historical disruption exists",
+    "category": "Historical Match",
+    "input_disruption": {
+      "description": "Critical port congestion at European hub delaying micro-controller delivery from key supplier.",
+      "disruption_type": "Port Congestion",
+      "industry": "Electronics",
+      "supplier_tier": "2",
+      "supplier_region": "Europe",
+      "supplier_size": "Medium",
+      "has_backup_supplier": false,
+      "disruption_severity": 4
+    },
+    "expected_behavior": "Retrieve similar past port congestion records in Europe/Electronics; recommend vetted historical response strategy with confidence supported by case count.",
+    "expected_response_criteria": {
+      "min_retrieved_cases": 3,
+      "expected_strategies": ["Alternative Supplier", "Expedited Shipping", "Production Rerouting"],
+      "must_cite_evidence": true,
+      "min_confidence": 0.40,
+      "human_review_acceptable": true
+    }
+  },
+  {
+    "test_id": "TC-02",
+    "name": "No highly similar disruption exists",
+    "category": "Sparse Evidence / Fallback",
+    "input_disruption": {
+      "description": "Unprecedented geothermal event halts specialized titanium refinery in remote sub-Antarctic zone.",
+      "disruption_type": "Factory Incident",
+      "industry": "Aerospace",
+      "supplier_tier": "4",
+      "supplier_region": "South America",
+      "supplier_size": "Small",
+      "has_backup_supplier": false,
+      "disruption_severity": 5
+    },
+    "expected_behavior": "Acknowledge sparse historical precedent, flag human review required, and avoid fabricating statistics or hallucinated cases.",
+    "expected_response_criteria": {
+      "max_retrieved_cases": 2,
+      "human_review_required": true,
+      "fallback_response_triggered": true,
+      "no_hallucinated_citations": true
+    }
+  },
+  {
+    "test_id": "TC-03",
+    "name": "High-severity disruption triage",
+    "category": "Severity Sensitivity",
+    "input_disruption": {
+      "description": "Ransomware encryption across regional semiconductor packaging facility halts 100% of shipments.",
+      "disruption_type": "Cyber Attack",
+      "industry": "Electronics",
+      "supplier_tier": "1",
+      "supplier_region": "Asia-Pacific",
+      "supplier_size": "Large",
+      "has_backup_supplier": false,
+      "disruption_severity": 5
+    },
+    "expected_behavior": "Classify as Critical severity, compute priority score >= 75 (High/Critical), and recommend urgent alternative supplier activation.",
+    "expected_response_criteria": {
+      "severity_classification": "Critical",
+      "min_priority_score": 75,
+      "recommended_action_urgency": "Immediate",
+      "must_cite_evidence": true
+    }
+  },
+  {
+    "test_id": "TC-04",
+    "name": "Low-severity minor disruption",
+    "category": "Low Severity / Routine",
+    "input_disruption": {
+      "description": "Minor customs inspection delay at land border crossing for non-critical packaging components.",
+      "disruption_type": "Logistics Delay",
+      "industry": "Consumer Goods",
+      "supplier_tier": "3",
+      "supplier_region": "North America",
+      "supplier_size": "Medium",
+      "has_backup_supplier": true,
+      "disruption_severity": 1
+    },
+    "expected_behavior": "Classify as Low severity, compute priority score <= 45 (Low/Guarded), and suggest mild expediting or safety stock buffer without costly supplier overhaul.",
+    "expected_response_criteria": {
+      "severity_classification": "Low",
+      "max_priority_score": 45,
+      "human_review_required": false
+    }
+  },
+  {
+    "test_id": "TC-05",
+    "name": "High financial loss scenario",
+    "category": "Financial Impact",
+    "input_disruption": {
+      "description": "Major tier-1 power plant transformer failure halting automotive assembly line with projected multimillion-dollar losses.",
+      "disruption_type": "Factory Incident",
+      "industry": "Automotive",
+      "supplier_tier": "1",
+      "supplier_region": "North America",
+      "supplier_size": "Large",
+      "has_backup_supplier": false,
+      "disruption_severity": 4
+    },
+    "expected_behavior": "Predict high financial loss in USD, reflect loss component in priority score, and identify key drivers in feature importance explanation.",
+    "expected_response_criteria": {
+      "min_predicted_loss_usd": 5000000,
+      "min_priority_score": 65,
+      "loss_explanation_present": true
+    }
+  },
+  {
+    "test_id": "TC-06",
+    "name": "High production impact scenario",
+    "category": "Operational Impact",
+    "input_disruption": {
+      "description": "Chemical feedstock supplier explosion eliminates 80% of active solvent supply for medical diagnostic devices.",
+      "disruption_type": "Factory Incident",
+      "industry": "Healthcare",
+      "supplier_tier": "2",
+      "supplier_region": "Europe",
+      "supplier_size": "Medium",
+      "has_backup_supplier": false,
+      "disruption_severity": 5
+    },
+    "expected_behavior": "Predict substantial production impact %, evaluate operational recovery days, and highlight alternate formulation or supplier switch.",
+    "expected_response_criteria": {
+      "min_predicted_impact_pct": 50.0,
+      "min_recovery_days": 30,
+      "must_cite_evidence": true
+    }
+  },
+  {
+    "test_id": "TC-07",
+    "name": "Regional supplier differentiation (Asia-Pacific)",
+    "category": "Regional Filtering",
+    "input_disruption": {
+      "description": "Typhoon damages port infrastructure and logistics terminals in coastal manufacturing hub.",
+      "disruption_type": "Natural Disaster",
+      "industry": "Electronics",
+      "supplier_tier": "2",
+      "supplier_region": "Asia-Pacific",
+      "supplier_size": "Large",
+      "has_backup_supplier": true,
+      "disruption_severity": 4
+    },
+    "expected_behavior": "Filter historical cases specifically to Asia-Pacific and natural disaster events; verify regional metadata filter adherence.",
+    "expected_response_criteria": {
+      "region_filter_exact_match": "Asia-Pacific",
+      "min_retrieved_cases": 3,
+      "must_cite_evidence": true
+    }
+  },
+  {
+    "test_id": "TC-08",
+    "name": "Labor disruption strategy formulation",
+    "category": "Disruption Diversity",
+    "input_disruption": {
+      "description": "Dockworkers strike across multiple marine terminals stalling inbound automotive sub-assemblies.",
+      "disruption_type": "Labor Strike",
+      "industry": "Automotive",
+      "supplier_tier": "2",
+      "supplier_region": "North America",
+      "supplier_size": "Medium",
+      "has_backup_supplier": false,
+      "disruption_severity": 3
+    },
+    "expected_behavior": "Retrieve labor strike precedents and formulate rerouting or expedited air cargo mitigation with historical recovery baselines.",
+    "expected_response_criteria": {
+      "disruption_type_match": "Labor Strike",
+      "min_retrieved_cases": 3,
+      "recommended_response_non_empty": true
+    }
+  },
+  {
+    "test_id": "TC-09",
+    "name": "Supplier Tier 3 metadata constraint",
+    "category": "Metadata Filter Compliance",
+    "input_disruption": {
+      "description": "Raw silicon wafer sub-supplier insolvency halts raw material pipeline for tier 2 component assemblers.",
+      "disruption_type": "Supplier Bankruptcy",
+      "industry": "Electronics",
+      "supplier_tier": "3",
+      "supplier_region": "Asia-Pacific",
+      "supplier_size": "Small",
+      "has_backup_supplier": false,
+      "disruption_severity": 4
+    },
+    "expected_behavior": "Strictly filter retrieval candidates by supplier_tier == '3' and verify 100% precision of retrieved tiers.",
+    "expected_response_criteria": {
+      "tier_filter_exact_match": "3",
+      "tier_compliance_rate": 1.0,
+      "resilience_score_reflects_tier_risk": true
+    }
+  },
+  {
+    "test_id": "TC-10",
+    "name": "Recommendation quality and strategy validity",
+    "category": "Recommendation Quality",
+    "input_disruption": {
+      "description": "Prolonged customs audit on critical pharmaceutical active ingredients in European distribution lane.",
+      "disruption_type": "Regulatory Block",
+      "industry": "Healthcare",
+      "supplier_tier": "1",
+      "supplier_region": "Europe",
+      "supplier_size": "Large",
+      "has_backup_supplier": true,
+      "disruption_severity": 3
+    },
+    "expected_behavior": "Generate strategy supported verbatim by historical effectiveness groups; verify confidence capping and explainable reasoning points.",
+    "expected_response_criteria": {
+      "strategy_in_historical_candidates": true,
+      "reasoning_points_min": 1,
+      "summary_length_max": 600,
+      "no_fabricated_sources": true
+    }
+  }
+]

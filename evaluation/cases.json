@@ -1,0 +1,63 @@
+[
+  {
+    "name": "port_congestion_electronics_europe",
+    "query": "Find historical Port Congestion cases for a Tier 2 Electronics supplier in Europe with severity 3 or higher, similar to DIS-000009.",
+    "filters": {
+      "disruption_type": "Port Congestion",
+      "industry": "Electronics",
+      "supplier_tier": "2",
+      "supplier_region": "Europe",
+      "disruption_severity": {"$gte": 2}
+    },
+    "relevant_ids": ["DIS-000009"]
+  },
+  {
+    "name": "cyber_attack_electronics_asia_pacific",
+    "query": "Find historical Cyber Attack cases for a Tier 2 Electronics supplier in Asia-Pacific with severity 3 or higher, similar to DIS-000002.",
+    "filters": {
+      "disruption_type": "Cyber Attack",
+      "industry": "Electronics",
+      "supplier_tier": "2",
+      "supplier_region": "Asia-Pacific",
+      "disruption_severity": {"$gte": 3}
+    },
+    "relevant_ids": ["DIS-000002"]
+  },
+  {
+    "name": "natural_disaster_electronics_asia_pacific",
+    "query": "Find historical Natural Disaster cases for a Tier 2 Electronics supplier in Asia-Pacific with severity 2 or higher, similar to DIS-000022.",
+    "filters": {
+      "disruption_type": "Natural Disaster",
+      "industry": "Electronics",
+      "supplier_tier": "2",
+      "supplier_region": "Asia-Pacific",
+      "disruption_severity": {"$gte": 2}
+    },
+    "relevant_ids": ["DIS-000022"]
+  },
+  {
+    "name": "port_congestion_electronics_asia_pacific",
+    "query": "Find historical Port Congestion cases for a Tier 1 Electronics supplier in Asia-Pacific with severity 2 or higher, similar to DIS-000010.",
+    "filters": {
+      "disruption_type": "Port Congestion",
+      "industry": "Electronics",
+      "supplier_tier": "1",
+      "supplier_region": "Asia-Pacific",
+      "disruption_severity": {"$gte": 2}
+    },
+    "relevant_ids": ["DIS-000010"]
+  },
+  {
+    "name": "no_matching_historical_cases",
+    "query": "Find Factory Incident cases for a Tier 4 Aerospace supplier in South America with severity 5.",
+    "filters": {
+      "disruption_type": "Factory Incident",
+      "industry": "Aerospace",
+      "supplier_tier": "4",
+      "supplier_region": "South America",
+      "disruption_severity": {"$gte": 5}
+    },
+    "relevant_ids": [],
+    "expect_empty": true
+  }
+]

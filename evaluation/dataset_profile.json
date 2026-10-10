@@ -1,0 +1,148 @@
+{
+  "source_file": "backend/data/supply_chain_disruption_recovery.csv",
+  "row_count": 100000,
+  "column_count": 15,
+  "columns": {
+    "disruption_id": "object",
+    "disruption_type": "object",
+    "industry": "object",
+    "supplier_tier": "int64",
+    "supplier_region": "object",
+    "supplier_size": "object",
+    "has_backup_supplier": "bool",
+    "disruption_severity": "int64",
+    "production_impact_pct": "float64",
+    "revenue_loss_usd": "float64",
+    "response_type": "object",
+    "response_time_days": "int64",
+    "partial_recovery_days": "int64",
+    "full_recovery_days": "int64",
+    "permanent_supplier_change": "bool"
+  },
+  "missing_values": {
+    "disruption_id": 0,
+    "disruption_type": 0,
+    "industry": 0,
+    "supplier_tier": 0,
+    "supplier_region": 0,
+    "supplier_size": 0,
+    "has_backup_supplier": 0,
+    "disruption_severity": 0,
+    "production_impact_pct": 0,
+    "revenue_loss_usd": 0,
+    "response_type": 0,
+    "response_time_days": 0,
+    "partial_recovery_days": 0,
+    "full_recovery_days": 0,
+    "permanent_supplier_change": 0
+  },
+  "exact_duplicate_rows": 0,
+  "duplicate_disruption_ids": 0,
+  "categorical_values": {
+    "disruption_type": {
+      "Port Congestion": 25118,
+      "Geopolitical": 18084,
+      "Labor Strike": 15017,
+      "Natural Disaster": 15016,
+      "Cyber Attack": 14887,
+      "Factory Incident": 11878
+    },
+    "industry": {
+      "Electronics": 29844,
+      "Automotive": 24934,
+      "Consumer Goods": 20158,
+      "Pharmaceuticals": 15015,
+      "Aerospace": 10049
+    },
+    "supplier_tier": {
+      "1": 34938,
+      "2": 30023,
+      "3": 25019,
+      "4": 10020
+    },
+    "supplier_region": {
+      "Asia-Pacific": 40262,
+      "Europe": 21890,
+      "North America": 19939,
+      "South America": 9896,
+      "Africa/Middle East": 8013
+    },
+    "supplier_size": {
+      "Medium": 45161,
+      "Small": 29872,
+      "Large": 24967
+    },
+    "has_backup_supplier": {
+      "True": 55574,
+      "False": 44426
+    },
+    "response_type": {
+      "Alternative Supplier": 44362,
+      "Production Reroute": 18858,
+      "Inventory Buffer": 12687,
+      "Customer Delay": 12429,
+      "Combined Strategy": 11664
+    },
+    "permanent_supplier_change": {
+      "False": 76080,
+      "True": 23920
+    }
+  },
+  "numerical_ranges_and_iqr_outliers": {
+    "disruption_severity": {
+      "min": 1.0,
+      "max": 5.0,
+      "mean": 2.49711,
+      "median": 2.0,
+      "q1": 2.0,
+      "q3": 3.0,
+      "iqr_outlier_count": 3791
+    },
+    "production_impact_pct": {
+      "min": 1.0,
+      "max": 100.0,
+      "mean": 31.411037,
+      "median": 30.1,
+      "q1": 18.4,
+      "q3": 42.9,
+      "iqr_outlier_count": 667
+    },
+    "revenue_loss_usd": {
+      "min": 10000.0,
+      "max": 373130977.48,
+      "mean": 2522811.8556522,
+      "median": 875466.1799999999,
+      "q1": 301601.9525,
+      "q3": 2492971.3674999997,
+      "iqr_outlier_count": 10620
+    },
+    "response_time_days": {
+      "min": 1.0,
+      "max": 64.0,
+      "mean": 4.06759,
+      "median": 2.0,
+      "q1": 1.0,
+      "q3": 5.0,
+      "iqr_outlier_count": 7094
+    },
+    "partial_recovery_days": {
+      "min": 3.0,
+      "max": 337.0,
+      "mean": 27.51214,
+      "median": 20.0,
+      "q1": 10.0,
+      "q3": 37.0,
+      "iqr_outlier_count": 5190
+    },
+    "full_recovery_days": {
+      "min": 8.0,
+      "max": 798.0,
+      "mean": 75.8411,
+      "median": 61.0,
+      "q1": 35.0,
+      "q3": 100.0,
+      "iqr_outlier_count": 4090
+    }
+  },
+  "valid_rows_for_required_schema": 100000
+}
